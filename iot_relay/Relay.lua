@@ -17,33 +17,12 @@ Relay:toggle()
 local Relay = {}
 Relay.__index = Relay
 
-function Relay.new(mqttHost, mqttPort, pin)
+function Relay.new(pin)
 
 	local self = setmetatable({}, Relay)
 	name = name or 'Relay:'..string.sub(wifi.sta.getmac(),13,-1)
   self.pin = pin or 4
 	self.state = 0
-
-	MqttClient = require('MqttClient').new(mqttHost, mqttPort, 'Relay', '{"MqttClient" : "true", "'..name..'" : "true", "Relay" : "true"}')
-	if MqttClient ~= nil then
-		-- add hooks for mqtt calls
-		MqttClient:register("on/set",
-			function(topic, message)
-				self:on()
-			end)
-		MqttClient:register("off/set",
-			function(topic, message)
-				self:off()
-			end)
-		MqttClient:register("toggle/set",
-			function(topic, message)
-				self:toggle()
-			end)
-		MqttClient:register("update",
-			function(topic, message)
-				self:update()
-			end)
-	end
 
 	-- set up gpio as output for relay
 	gpio.mode(self.pin, gpio.OUTPUT)
